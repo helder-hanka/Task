@@ -1,15 +1,23 @@
 import express, { Request, Response, NextFunction } from "express";
-import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import routes from "./routes/routes";
 
 dotenv.config();
 const MONGODB_URI = process.env.MONGODB_URI;
 
+if (!MONGODB_URI) {
+  console.error("MONGODB_URI is not defined in the environment variables.");
+  process.exit(1);
+}
+
 mongoose
-  .connect(`${MONGODB_URI}`)
+  .connect(MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("Could not connect to MongoDB ", err));
+  .catch((err) => {
+    console.error("Could not connect to MongoDB", err);
+    process.exit(1);
+  });
 
 const app = express();
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -22,9 +30,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, PATCH, OPTIONS"
   );
-  next;
+  next();
 });
 app.use(express.json());
-app.use(bodyParser.json());
+routes(app);
 
 export default app;
