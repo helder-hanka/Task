@@ -8,17 +8,26 @@ const admin = {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const existingAdmin = await Admin.findOne({ email: req.body.email });
+    const { email, password } = req.body;
+    if (!email || !password)
+      return res.status(422).json({ message: "Email or password is empty!" });
 
-    if (existingAdmin) {
-      return res.status(400).json({ message: "Email already in use" });
+    try {
+      const existingAdmin = await Admin.findOne({ email: email });
+
+      if (existingAdmin) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+
+      const passwordHash = await bcript.hash(password, 10);
+
+      const admin = new Admin({ ...req.body, password: passwordHash });
+
+      await admin.save();
+      res.status(201).json({ message: "Admin Created" });
+    } catch (error) {
+      res.status(500).json({ error });
     }
-
-    const passwordHash = bcript.hash(req.body.password, 10);
-
-    const admin = new Admin({ ...req.body, password: passwordHash });
-
-    await admin.save();
   },
 };
 
