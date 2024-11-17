@@ -25,7 +25,7 @@ const admin = {
       const admin = new Admin({ ...req.body, password: passwordHash });
 
       await admin.save();
-      res.status(201).json({ message: "Admin Created" });
+      return res.status(201).json({ message: "Admin Created" });
     } catch (error) {
       res.status(500).json({ error });
     }
