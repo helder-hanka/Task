@@ -2,8 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import Admin from "../models/admin";
 import bcript from "bcrypt";
 
-export const admin = {
-  signup: async (req: Request, res: Response, next: NextFunction) => {
+const admin = {
+  signup: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
     const existingAdmin = await Admin.findOne({ email: req.body.email });
 
     if (existingAdmin) {
@@ -17,3 +21,5 @@ export const admin = {
     await admin.save();
   },
 };
+
+export default admin;
