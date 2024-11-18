@@ -1,6 +1,5 @@
 import { Schema, model, Document } from "mongoose";
-
-interface IEmployee {
+interface IEmployee extends Document {
   name: string;
   AdminId: Schema.Types.ObjectId;
 }
