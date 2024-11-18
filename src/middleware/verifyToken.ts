@@ -11,7 +11,7 @@ export const verifyToken = (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
+) => {
   const errMsg: string = "Not authentificated";
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
@@ -31,7 +31,6 @@ export const verifyToken = (
       res.status(401).json({ message: errMsg });
       return;
     }
-
     req.userId = (decoded as JwtPayload).userId;
     next();
   } catch (error) {
