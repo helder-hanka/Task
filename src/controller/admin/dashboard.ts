@@ -8,13 +8,11 @@ const employee = {
     next: NextFunction
   ): Promise<any> => {
     const adminId = req.userId;
-
-    let name = req.body.name.trim().toLowerCase();
+    const name = req.body.name?.trim().toLowerCase();
 
     if (!name) {
       return res.status(422).json({ message: "Name is Empty" });
     }
-
     try {
       const isExistName = await Employee.findOne({
         name: name,
@@ -29,7 +27,7 @@ const employee = {
       });
 
       await newName.save();
-      res.status(2001).json({ message: "Created employee" });
+      res.status(201).json({ message: "Created employee" });
     } catch (error) {
       res.status(500).json({ error });
     }
