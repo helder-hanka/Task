@@ -11,27 +11,30 @@ export const verifyToken = (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): void => {
   const errMsg: string = "Not authentificated";
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) {
-      return res.status(401).json({ message: errMsg });
+      res.status(401).json({ message: errMsg });
+      return;
     }
 
     const SECRET_KEY = process.env.SECRET_KEY;
     if (!SECRET_KEY) {
-      return res.status(401).json({ message: errMsg });
+      res.status(401).json({ message: errMsg });
+      return;
     }
 
     const decoded = jwt.verify(token, SECRET_KEY);
     if (!decoded) {
-      return res.status(401).json({ message: errMsg });
+      res.status(401).json({ message: errMsg });
+      return;
     }
 
     req.userId = (decoded as JwtPayload).userId;
     next();
   } catch (error) {
-    return res.status(500).json({ error });
+    res.status(500).json({ error });
   }
 };

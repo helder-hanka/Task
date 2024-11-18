@@ -9,6 +9,7 @@ const EmployeeSchema = new Schema<IEmployee>({
   name: {
     type: String,
     required: true,
+    unique: true,
   },
   AdminId: {
     type: Schema.Types.ObjectId,
