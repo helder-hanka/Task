@@ -61,14 +61,14 @@ const admin = {
       }
 
       const token = jwt.sign(
-        { email: admin.email, adminId: admin._id },
+        { email: admin.email, userId: admin._id },
         SECRET_KEY,
         { expiresIn: "24h" }
       );
 
       return res
         .status(200)
-        .json({ message: "Login successful", token, adminId: admin._id });
+        .json({ message: "Login successful", token, userId: admin._id });
     } catch (error) {
       res.status(500).json({ error: error });
     }
