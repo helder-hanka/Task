@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import Employee from "../../models/employee";
 
-const employee = {
-  create: async (
+const interfaces = {
+  createEmplyee: async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -34,4 +34,4 @@ const employee = {
   },
 };
 
-export default employee;
+export default interfaces;
