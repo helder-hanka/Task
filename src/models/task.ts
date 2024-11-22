@@ -1,6 +1,6 @@
 import { Schema, model, Document } from "mongoose";
 
-interface ITask {
+interface ITask extends Document {
   label: string;
   startTime: Date;
   endTime: Date;
