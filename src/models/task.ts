@@ -23,7 +23,7 @@ const TaskSchema = new Schema<ITask>({
   },
   EmployeeId: {
     type: Schema.Types.ObjectId,
-    required: true,
+    required: false,
     ref: "Employee",
   },
   AdminId: {
