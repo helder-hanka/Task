@@ -19,7 +19,7 @@ const interfaces = {
       const isExistName = await Employee.findOne({
         name: name,
       });
-      if (isExistName === name) {
+      if (isExistName?.name === name) {
         return res.status(400).json({ message: `${name} already exists` });
       }
 
