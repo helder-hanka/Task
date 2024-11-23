@@ -75,6 +75,27 @@ const interfaces = {
       res.status(500).json({ message: "Internal server error", error });
     }
   },
+
+  getTasks: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      const task = await Task.find()
+        .populate("AdminId", "email")
+        .populate("EmployeeId", "name");
+      console.log(task);
+
+      if (!task) {
+        return res.status(400).json({ message: "Task not found" });
+      }
+
+      res.status(201).json(task);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error", error });
+    }
+  },
 };
 
 export default interfaces;
