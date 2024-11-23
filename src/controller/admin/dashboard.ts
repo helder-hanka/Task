@@ -2,9 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import Employee from "../../models/employee";
 import Task from "../../models/task";
 import date from "../../utils/date";
+import testMongoose from "../../utils/testMongoose";
 
 const interfaces = {
-  createEmplyee: async (
+  createEmployee: async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -16,6 +17,9 @@ const interfaces = {
       return res.status(422).json({ message: "Name is Empty" });
     }
     try {
+      if (!adminId || (adminId && !testMongoose.objIdIsV(adminId))) {
+        return res.status(400).json({ message: "Invalid AdminId" });
+      }
       const isExistName = await Employee.findOne({
         name: name,
       });

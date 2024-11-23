@@ -4,7 +4,7 @@ import { verifyToken } from "../../middleware/verifyToken";
 
 const router = Router();
 
-router.post("/employee/create", verifyToken, interfaces.createEmplyee);
+router.post("/employee/create", verifyToken, interfaces.createEmployee);
 router.post("/tasks", verifyToken, interfaces.CreateTask);
 router.get("/tasks", verifyToken, interfaces.getTasks);
 
