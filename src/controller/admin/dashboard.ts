@@ -8,7 +8,7 @@ const interfaces = {
   createEmployee: async (
     req: Request,
     res: Response,
-    next: NextFunction
+    _next: NextFunction
   ): Promise<any> => {
     const adminId = req.userId;
     const name = req.body.name?.trim().toLowerCase();
@@ -42,7 +42,7 @@ const interfaces = {
   CreateTask: async (
     req: Request,
     res: Response,
-    next: NextFunction
+    _next: NextFunction
   ): Promise<any> => {
     const adminId = req.userId;
     const { label, startTime, endTime, currentDate } = req.body;
@@ -88,7 +88,7 @@ const interfaces = {
   getTasks: async (
     req: Request,
     res: Response,
-    next: NextFunction
+    _next: NextFunction
   ): Promise<any> => {
     const sortBy = (req.query.sortBy as string) || "label";
     const sortOrder = (req.query.sortOrder as string) || "asc";
@@ -105,13 +105,27 @@ const interfaces = {
         .sort({ [sortBy]: order })
         .populate("AdminId", "email")
         .populate("EmployeeId", "name");
-      console.log(task);
 
       if (!task) {
         return res.status(400).json({ message: "Task not found" });
       }
 
       res.status(201).json(task);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error", error });
+    }
+  },
+
+  deleteTask: async (
+    req: Request,
+    res: Response,
+    _next: NextFunction
+  ): Promise<any> => {
+    try {
+      const task = await Task.findById(req.params.id);
+      if (!task) return res.status(400).json({ message: "Task not found" });
+      await Task.findById(req.params.id);
+      res.status(201).json({ message: "Task delete" });
     } catch (error) {
       res.status(500).json({ message: "Internal server error", error });
     }
