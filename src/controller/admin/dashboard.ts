@@ -45,7 +45,7 @@ const interfaces = {
     next: NextFunction
   ): Promise<any> => {
     const adminId = req.userId;
-    const { label, startTime, endTime } = req.body;
+    const { label, startTime, endTime, currentDate } = req.body;
 
     try {
       if (!label.trim()) {
@@ -53,18 +53,23 @@ const interfaces = {
       }
       const start = date.parse(startTime);
       const end = date.parse(endTime);
-      const dateNow = new Date();
+      const newCurrentDate = date.parse(currentDate);
 
-      if (!start || start < dateNow) {
+      if (!newCurrentDate) {
+        return res
+          .status(400)
+          .json({ message: "Invalid or missing CurrentDate" });
+      }
+      if (!start || start < newCurrentDate) {
         return res
           .status(400)
           .json({ message: "Invalid or missing startTime" });
       }
-      if (!end || end < dateNow) {
+      if (!end || end < newCurrentDate) {
         return res.status(400).json({ message: "Invalid or missing endTime" });
       }
 
-      if (start >= end) {
+      if (start > end) {
         return res
           .status(400)
           .json({ message: "StartTime must be earlier than endTime" });
