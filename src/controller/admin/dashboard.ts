@@ -90,8 +90,19 @@ const interfaces = {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
+    const sortBy = (req.query.sortBy as string) || "label";
+    const sortOrder = (req.query.sortOrder as string) || "asc";
+
+    const validSortKeys = ["label", "startTime", "endTime"];
+    if (!validSortKeys.includes(sortBy)) {
+      return res.status(400).json({ message: "Invalid sort Key." });
+    }
+
+    const order = sortOrder === "asc" ? 1 : -1;
+
     try {
       const task = await Task.find()
+        .sort({ [sortBy]: order })
         .populate("AdminId", "email")
         .populate("EmployeeId", "name");
       console.log(task);
