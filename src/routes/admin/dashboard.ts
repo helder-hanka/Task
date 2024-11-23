@@ -7,5 +7,6 @@ const router = Router();
 router.post("/employee/create", verifyToken, interfaces.createEmployee);
 router.post("/tasks", verifyToken, interfaces.CreateTask);
 router.get("/tasks", verifyToken, interfaces.getTasks);
+router.delete("/tasks/:id", verifyToken, interfaces.deleteTask);
 
 export default router;
