@@ -5,6 +5,7 @@ import { verifyToken } from "../../middleware/verifyToken";
 const router = Router();
 
 router.post("/employee/create", verifyToken, interfaces.createEmplyee);
-router.post("/tasks/create", verifyToken, interfaces.CreateTask);
+router.post("/tasks", verifyToken, interfaces.CreateTask);
+router.get("/tasks", verifyToken, interfaces.getTasks);
 
 export default router;
