@@ -1,12 +1,6 @@
-interface IDate {
-  date: Date;
-}
-
 export default {
-  parse: (date: string): IDate | null | Date => {
-    if (isNaN(Date.parse(date))) {
-      return null;
-    }
-    return new Date(date);
+  parse: (date: string): Date | null => {
+    const parseDate = Date.parse(date);
+    return isNaN(parseDate) ? null : new Date(parseDate);
   },
 };
