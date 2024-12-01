@@ -4,7 +4,7 @@ interface ITask extends Document {
   label: string;
   startTime: Date;
   endTime: Date;
-  EmployeeId: Schema.Types.ObjectId;
+  assignedToEmployeeId: Schema.Types.ObjectId;
   AdminId: Schema.Types.ObjectId;
 }
 
@@ -21,7 +21,7 @@ const TaskSchema = new Schema<ITask>({
     type: Date,
     required: true,
   },
-  EmployeeId: {
+  assignedToEmployeeId: {
     type: Schema.Types.ObjectId,
     required: false,
     ref: "Employee",
