@@ -4,6 +4,11 @@ import Task from "../../models/task";
 import date from "../../utils/date";
 import testMongoose from "../../utils/testMongoose";
 
+type ITask = {
+  startTime: Date;
+  endTime: Date;
+};
+
 const interfaces = {
   createEmployee: async (
     req: Request,
@@ -48,31 +53,27 @@ const interfaces = {
     const { label, startTime, endTime, currentDate } = req.body;
 
     try {
-      if (!label.trim()) {
+      if (!label?.trim()) {
         return res.status(400).json({ message: "Invalid or empty label" });
       }
       const start = date.parse(startTime);
       const end = date.parse(endTime);
-      const newCurrentDate = date.parse(currentDate);
+      const current = date.parse(currentDate);
 
-      if (!newCurrentDate) {
+      if (!start || !end || !current) {
         return res
           .status(400)
           .json({ message: "Invalid or missing CurrentDate" });
       }
-      if (!start || start < newCurrentDate) {
+      if (!start || start < current) {
         return res
           .status(400)
-          .json({ message: "Invalid or missing startTime" });
+          .json({ message: "StartTime must not be in the past" });
       }
-      if (!end || end < newCurrentDate) {
-        return res.status(400).json({ message: "Invalid or missing endTime" });
-      }
-
-      if (start > end) {
+      if (!end || end < start) {
         return res
           .status(400)
-          .json({ message: "StartTime must be earlier than endTime" });
+          .json({ message: "EndTime must not be before StartTime" });
       }
 
       const newTask = new Task({ ...req.body, AdminId: adminId });
@@ -104,7 +105,7 @@ const interfaces = {
       const task = await Task.find()
         .sort({ [sortBy]: order })
         .populate("AdminId", "email")
-        .populate("EmployeeId", "name");
+        .populate("assignedToEmployeeId", "name");
 
       if (!task) {
         return res.status(400).json({ message: "Task not found" });
@@ -128,6 +129,86 @@ const interfaces = {
       res.status(201).json({ message: "Task delete" });
     } catch (error) {
       res.status(500).json({ message: "Internal server error", error });
+    }
+  },
+
+  assignTask: async (
+    req: Request,
+    res: Response,
+    _next: NextFunction
+  ): Promise<any> => {
+    const { taskId, employeeId, currentDate } = req.body;
+    const newCurrentDate = date.parse(currentDate);
+
+    try {
+      if (!taskId || (taskId && !testMongoose.objIdIsV(taskId))) {
+        return res.status(400).json({ message: "Thask not found !" });
+      }
+
+      const task = await Task.findById(taskId);
+      if (!task) return res.status(400).json({ message: "Task not found" });
+      if (task?.assignedToEmployeeId)
+        return res
+          .status(400)
+          .json({ message: "Task already assigned to someone!" });
+
+      if (!employeeId || (employeeId && !testMongoose.objIdIsV(employeeId))) {
+        return res.status(400).json({ message: "Invalid EmployeeId !" });
+      }
+      const employee = await Employee.findById(employeeId);
+      if (!employee)
+        return res.status(400).json({ message: "Employee not found" });
+
+      if (!newCurrentDate) {
+        return res
+          .status(400)
+          .json({ message: "Invalid or missing CurrentDate" });
+      }
+
+      const ongoingTask = await Task.findOne({
+        assignedToEmployeeId: employeeId,
+        endTime: { $exists: true },
+      });
+
+      if (ongoingTask) {
+        return res
+          .status(400)
+          .json({ message: "Emplyee already has an ongoing task" });
+      }
+
+      const startofDay = new Date(newCurrentDate);
+      startofDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(newCurrentDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const tasksForDay = await Task.find({
+        assignedToEmployeeId: employeeId,
+        startTime: startofDay,
+        endTime: endOfDay,
+      });
+
+      const totalHours = tasksForDay.reduce((total, t: ITask) => {
+        const duration =
+          (t.endTime.getTime() - t.startTime.getTime()) / (1000 * 60 * 60);
+        return total + duration;
+      }, 0);
+
+      const taskDuration =
+        (task.endTime.getTime() - task.startTime.getTime()) / (1000 * 60 * 60);
+
+      if (totalHours + taskDuration > 8) {
+        return res
+          .status(400)
+          .json({ message: "Employee cannot 8 hours of work per day." });
+      }
+
+      task.assignedToEmployeeId = employeeId;
+      await task.save();
+
+      res.status(201).json({ message: "Task assigned successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error", error });
+      console.log(error);
     }
   },
 };
